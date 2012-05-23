@@ -1,7 +1,7 @@
-# Project Name Documentation
+# Quartzite Documentation
 
-This is a documentation site for [Project Name]. Copy or clone me and adapt for your project
-that needs documentation guides similar to [rubyamqp.info](http://rubyamqp.info), [clojuremongodb.info](http://clojuremongodb.info) and so on.
+This is a documentation site for [Quartzite](https://github.com/michaelklishin/quartzite). Copy or clone me and adapt for your project
+that needs documentation guides similar to [clojureriak.info](http://clojureriak.info), [clojuremongodb.info](http://clojuremongodb.info) and so on.
 
 
 ## Install Dependencies
@@ -22,9 +22,6 @@ In order to modify contents and launch dev environment, run:
 
       ./bin/jekyll
 
-In order to recompile haml and sass files for publishing, run
-
-      ./recompile_haml.sh
 
 ## License & Copyright
 
