@@ -2377,7 +2377,7 @@ table .span24 {
 .dropdown-menu {
   position: absolute;
   top: 99%;
-  left: -65%;
+  left: -97%;
   z-index: 1000;
   display: none;
   float: left;
