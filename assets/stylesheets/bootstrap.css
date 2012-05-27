@@ -2371,12 +2371,13 @@ table .span24 {
 
 .dropdown-holder {
   position: relative;
+
 }
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 99%;
+  left: -65%;
   z-index: 1000;
   display: none;
   float: left;
@@ -3892,7 +3893,7 @@ input[type="submit"].btn.btn-mini {
 .navbar .dropdown-menu:after {
   position: absolute;
   top: -6px;
-  left: 10px;
+  left: 50%;
   display: inline-block;
   border-right: 6px solid transparent;
   border-bottom: 6px solid #ffffff;
