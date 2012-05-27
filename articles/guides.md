@@ -19,20 +19,30 @@ An overview of Quartzite with a quick tutorial that helps you to get started wit
 
 This guide covers:
 
- * TBD
+ * Quartz schedulers
+ * Scheduler lifecycle
+ * Scheduler configuration
+ * Using multiple schedulers with Quartzite
 
 
 ### [Defining jobs](/jobs.html)
 
 This guide covers:
 
- * TBD
+ * How to define periodically executed jobs
+ * Using job keys to identify jobs
+ * Using job contexts and data maps
+
 
 ### [Defining triggers and schedules](/triggers.html)
 
 This guide covers:
 
- * TBD
+ * How to define triggers
+ * Using trigger keys to identify triggers
+ * How to use various types of schedules
+ * How to pass context information to executed jobs
+
 
 ### [Scheduling, unscheduling and pausing jobs](/unscheduling_and_pausing.html)
 
