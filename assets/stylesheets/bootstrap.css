@@ -2369,6 +2369,10 @@ table .span24 {
   filter: alpha(opacity=100);
 }
 
+.dropdown-holder {
+  position: relative;
+}
+
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -2395,6 +2399,12 @@ table .span24 {
      -moz-background-clip: padding;
           background-clip: padding-box;
 }
+
+
+.dropdown-holder:hover .dropdown-menu {
+  display: block;
+}
+
 
 .dropdown-menu.pull-right {
   right: 0;
