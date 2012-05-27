@@ -15,7 +15,7 @@ We recommend that you read these guides, if possible, in this order:
 An overview of Quartzite with a quick tutorial that helps you to get started with it. It should take about
 10 minutes to read and study the provided code examples
 
-### [Scheduler initialization](/scheduler.html)
+### [Scheduler initialization](/articles/scheduler.html)
 
 This guide covers:
 
@@ -25,7 +25,7 @@ This guide covers:
  * Using multiple schedulers with Quartzite
 
 
-### [Defining jobs](/jobs.html)
+### [Defining jobs](/articles/jobs.html)
 
 This guide covers:
 
@@ -34,7 +34,7 @@ This guide covers:
  * Using job contexts and data maps
 
 
-### [Defining triggers and schedules](/triggers.html)
+### [Defining triggers and schedules](/articles/triggers.html)
 
 This guide covers:
 
@@ -44,27 +44,27 @@ This guide covers:
  * How to pass context information to executed jobs
 
 
-### [Scheduling, unscheduling and pausing jobs](/unscheduling_and_pausing.html)
+### [Scheduling, unscheduling and pausing jobs](/articles/unscheduling_and_pausing.html)
 
 This guide covers:
 
  * TBD
 
-### [Querying the scheduler](/querying.html)
-
-This guide covers:
-
- * TBD
-
-
-### [Using persistent stores for scheduler state](/persistent_quartz_stores.html)
+### [Querying the scheduler](/articles/querying.html)
 
 This guide covers:
 
  * TBD
 
 
-### [Using Quartz plugins](/quartz_plugins.html)
+### [Using persistent stores for scheduler state](/articles/persistent_quartz_stores.html)
+
+This guide covers:
+
+ * TBD
+
+
+### [Using Quartz plugins](/articles/quartz_plugins.html)
 
 This guide covers:
 
