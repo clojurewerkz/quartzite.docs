@@ -1,11 +1,11 @@
 ---
-title: "Project Name: Community"
+title: "Quartzite: Community"
 layout: article
 ---
 
 ## Mailing List
 
-[Project has a mailing list](). Feel free to join it and ask any questions you may have.
+[Quartzite has a mailing list](https://groups.google.com/forum/#!forum/clojure-quartz). Feel free to join it and ask any questions you may have.
 
 
 ## News & Announcements on Twitter
@@ -15,8 +15,8 @@ To subscribe for announcements of releases, important changes and so on, please 
 
 ## What is ClojureWerkz?
 
-Project Name is part of the group of libraries known as ClojureWerkz, together with
-[Neocons](https://github.com/michaelklishin/neocons), [Langohr](https://github.com/michaelklishin/langohr), [Monger](https://github.com/michaelklishin/monger), [Welle](https://github.com/michaelklishin/welle), [Elastisch](https://github.com/clojurewerkz/elastisch), [Quartzite](https://github.com/michaelklishin/quartzite) and several others.
+Quartzite is part of the group of libraries known as ClojureWerkz, together with
+[Monger](http://clojuremongodb.info), [Welle](http://clojureriak.info), [Neocons](https://github.com/michaelklishin/neocons), [Langohr](https://github.com/michaelklishin/langohr), [Elastisch](https://github.com/clojurewerkz/elastisch) and several others.
 
 
 ## Reporting Issues
@@ -27,7 +27,7 @@ If possible, try to explain what behavior you expected and why. Bonus points for
 
 ## Contributing
 
-Project Name uses [Leiningen 2](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md). Make sure you have it installed and then run tests against
+Quartzite uses [Leiningen 2](https://github.com/technomancy/leiningen/blob/master/doc/TUTORIAL.md). Make sure you have it installed and then run tests against
 supported Clojure versions using
 
     lein2 all test
