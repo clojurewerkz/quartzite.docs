@@ -1,5 +1,5 @@
 ---
-title: "Quartzite: all documentation guides"
+title: "Quartzite, a powerful Clojure scheduling library: all documentation guides"
 layout: article
 ---
 
@@ -15,46 +15,46 @@ We recommend that you read these guides, if possible, in this order:
 An overview of Quartzite with a quick tutorial that helps you to get started with it. It should take about
 10 minutes to read and study the provided code examples
 
-### [Scheduler initialization](/)
+### [Scheduler initialization](/scheduler.html)
 
 This guide covers:
 
  * TBD
 
 
-### [Defining jobs](/)
+### [Defining jobs](/jobs.html)
 
 This guide covers:
 
  * TBD
 
-### [Defining triggers and schedules](/)
+### [Defining triggers and schedules](/triggers.html)
 
 This guide covers:
 
  * TBD
 
-### [Scheduling, unscheduling and pausing jobs](/)
+### [Scheduling, unscheduling and pausing jobs](/unscheduling_and_pausing.html)
 
 This guide covers:
 
  * TBD
 
-### [Querying the scheduler](/)
-
-This guide covers:
-
- * TBD
-
-
-### [Using persistent stores for scheduler state](/)
+### [Querying the scheduler](/querying.html)
 
 This guide covers:
 
  * TBD
 
 
-### [Using Quartz plugins](/)
+### [Using persistent stores for scheduler state](/persistent_quartz_stores.html)
+
+This guide covers:
+
+ * TBD
+
+
+### [Using Quartz plugins](/quartz_plugins.html)
 
 This guide covers:
 

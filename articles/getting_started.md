@@ -132,6 +132,8 @@ Triggers are defined using another DSL, this time from the `clojurewerkz.quartzi
 So how triggers are defined is quite similar to how jobs are defined. Quartz provides several types of execution schedules
 and Quartzite supports all of them in the DSL. A couple more schedule types will be demonstrated later in this guide.
 
+Simple periodic schedule demonstrated here is used when you need to perform a task N times with a fixed time interval.
+
 Now that we know how to define jobs and triggers, lets schedule them for execution.
 
 
@@ -147,19 +149,81 @@ will fire 10 times every 200 ms and expire after that. Expired triggers do not e
 
 ## Unscheduling jobs
 
+To unschedule an operation, you unschedule its trigger (or several of them) using `clojurewerkz.quartzite.scheduler/unschedule-job`
+and `clojurewerkz.quartzite.scheduler/unschedule-jobs` functions:
+
 {% gist 78e43f36ea261657b7c5 %}
 
-TBD
+Please note that `unschedule-job` takes a *trigger* key. `clojurewerkz.quartzite.scheduler/unschedule-jobs` works the same way but
+takes a collection of keys.
+
+There are other functions that delete jbos and all their triggers, pause execution of triggers and so on. They are covered in the
+[Scheduling, unscheduling and pausing jobs](/) guide.
 
 
 ## Using Cron expression schedules
 
-TBD
+One of the schedule types that Quartz supports is the Cron expression schedule. It lets you define the schedule as a single expression used
+by cron(8)(http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
+are most commonly used when migrating legacy applications or by developers who are deeply familiar with Cron.
+
+To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron`:
+
+{% gist 4fdad0672e53b96b5732 %}
+
+To learn more about Cron expressions, consult [crontab(5)](http://linux.die.net/man/5/crontab).
 
 
-## Using calendar schedules
+## Using calendar interval schedules
 
-TBD
+Third type of trigger schdule is the calendar interval schedule. It fires at fixed intervals: minutes, hours, days, weeks, months or years.
+In this example, we use intervals of 1 day:
+
+{% gist aa70ce2fbf668794d4f8 %}
+
+
+## Using daily interval schedules
+
+Daily interval schedules make it easy to define schedules like
+
+ * "Monday through Friday from 9 to 17"
+ * "Every weekend at 3 in the morning"
+ * "Every Friday at noon"
+ * "Every day at 13:45"
+ * "Every hour on Thursdays but not later than 15:00, up to 400 times total"
+
+without having to deal with Cron expressions:
+
+{% gist 0ec2b70b395d754d8409 %}
+
+
+
+## Wrapping up
+
+We have walked through basic features of Quartzite (and Quartz, the library it is built on). Quartzite makes it easier to work with executing operations
+on a schedule:
+
+ * Separates scheduling and execution rules from jobs
+ * Provides multiple types of schedules
+ * Provides means to identify jobs and triggers, schedule, unschedule, pause and resume them
+
+Granted, this flexibility comes at some additional boilerplate but Quartzite avoids most of it with a number of DSLs that Clojure is so good at.
+
+Quartz has many more small features this guide does not cover:
+
+ * Passing context map to jobs
+ * It is possible to use persistent stores (there are JDBC databases stores, [MongoDB Quartz store](https://github.com/michaelklishin/quartz-mongodb) and so on) for scheduling data
+ * Event listeners
+ * Querying scheduler state (like getting a list of all paused or misfired triggers)
+ * Misfires and error handling scenarios
+ * Clustering
+ * 3rd party extensions
+
+Most of these features are covered in the rest of the guides.
+
+While Quartzite focuses on providing convenient expressive DSLs for scheduling, it benefits directly from all those features. To integrate many of them,
+all you have to do is to add a dependency to your project (or have a JAR on the classpath any other way) and specify a line or few in
+the Quartz configuration file, `quartz.properties`, that must also be on the classpath.
 
 
 ## What to read next
@@ -168,13 +232,13 @@ The documentation is organized as a number of guides, covering all kinds of topi
 
 We recommend that you read the following guides first, if possible, in this order:
 
- * [Scheduler initialization](/)
- * [Defining jobs](/)
- * [Defining triggers and schedules](/)
- * [Scheduling, unscheduling and pausing jobs](/)
- * [Querying the scheduler](/)
- * [Using persistent stores for scheduler state](/)
- * [Using Quartz plugins](/)
+ * [Scheduler initialization](/scheduler.html)
+ * [Defining jobs](/jobs.html)
+ * [Defining triggers and schedules](/triggers.html)
+ * [Scheduling, unscheduling and pausing jobs](/unscheduling_and_pausing.html)
+ * [Querying the scheduler](/querying.html)
+ * [Using persistent stores for scheduler state](/persistent_quartz_stores.html)
+ * [Using Quartz plugins](/quartz_plugins.html)
 
 
 ## Tell Us What You Think!
