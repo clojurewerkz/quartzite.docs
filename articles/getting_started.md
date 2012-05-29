@@ -80,7 +80,7 @@ This function starts a an instance of Quartz scheduler that maintains a thread p
 the top-level namespace code is a **bad idea**: it will cause Leiningen tasks like `lein jar` to hang forever because Quartz threads will prevent
 JVM from exiting.
 
-When Quartzite scheduler is initialized, it does not trigger jobs until it is started using `clojurewerkz.quartzite.scheduler/initialize`. Very often this will happen on application start up:
+When Quartzite scheduler is initialized, it does not trigger jobs until it is started using `clojurewerkz.quartzite.scheduler/start`. Very often this will happen on application start up:
 
 {% gist 73a4649e06699246ff82 %}
 
