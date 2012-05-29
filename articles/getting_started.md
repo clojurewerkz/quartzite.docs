@@ -32,7 +32,7 @@ provides a clean Clojure DSL and is well maintained.
 
 Quartzite is not a replacement for Quartz, instead, Quartzite builds on top of it. Quartzite is not a standalone tool like Cron, it is a library that
 applications use to programmatically schedule operations, unschedule them, calculate schedules using data from various data sources. Quartzite benefits
-from the extensibility of Quartz, for example, pluggable persistent schedule storage engines.
+from the extensibility of Quartz, for example, pluggable durable schedule stores.
 
 ### Project Maturity
 
