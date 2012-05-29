@@ -167,7 +167,7 @@ One of the schedule types that Quartz supports is the Cron expression schedule. 
 by cron(8)(http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
 are most commonly used when migrating legacy applications or by developers who are deeply familiar with Cron.
 
-To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron`:
+To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron` namespaces:
 
 {% gist 4fdad0672e53b96b5732 %}
 

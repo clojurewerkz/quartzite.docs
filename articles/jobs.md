@@ -61,7 +61,7 @@ namespace:
 `clojurewerkz.quartzite.jobs/key` function can be used with any other function that accepts job keys.
 
 
-## Using job keys to identify jobs
+## Using keys to identify jobs
 
 In order to pause or completely remove a job from the scheduler, there needs to be a way to identify it. Job identifiers are called "keys". A key consists
 of a string identifier and an (optional) group. To instantiate keys, use `clojurewerkz.quartzite.jobs/key` function:
