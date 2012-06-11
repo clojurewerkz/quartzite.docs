@@ -19,7 +19,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.0.0-rc5`.
+This guide covers Quartzite `1.0.0-rc6`.
 
 
 ## Quartzite Overview
@@ -49,14 +49,14 @@ Quartzite is built from the ground up for Clojure 1.3 and later.
 
 ### With Leiningen
 
-    [clojurewerkz/quartzite "1.0.0-rc5"]
+    [clojurewerkz/quartzite "1.0.0-rc6"]
 
 ### With Maven
 
     <dependency>
       <groupId>clojurewerkz</groupId>
       <artifactId>quartzite</artifactId>
-      <version>1.0.0-rc5</version>
+      <version>1.0.0-rc6</version>
     </dependency>
 
 It is recommended to stay up-to-date with new versions. New releases and important changes are announced [@ClojureWerkz](http://twitter.com/ClojureWerkz).
