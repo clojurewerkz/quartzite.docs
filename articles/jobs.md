@@ -18,7 +18,7 @@ Although many examples won't make much sense without demonstrating the use of *t
 related scheduler operations, while the dedicated [guide on triggers](/articles/triggers.html) will focus more on using various
 kinds of schedules.
 
-This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a> (including images & stylesheets). The source is available [on Github](https://github.com/clojurewerkz/welle.docs).
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a> (including images & stylesheets). The source is available [on Github](https://github.com/clojurewerkz/quartzite.docs).
 
 
 

@@ -14,7 +14,7 @@ It should take about 10 minutes to read and study the provided code examples. Th
  * Basic operations (initializing the scheduler, scheduling and unscheduling jobs)
  * Overview of how persistent schedule stores are used with Quartzite
 
-This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a> (including images & stylesheets). The source is available [on Github](https://github.com/clojurewerkz/welle.docs).
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a> (including images & stylesheets). The source is available [on Github](https://github.com/clojurewerkz/quartzite.docs).
 
 
 ## What version of Quartzite does this guide cover?
