@@ -18,7 +18,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.0.0-rc6`.
+This guide covers Quartzite `1.0.x`.
 
 
 ## What Quartz triggers
@@ -97,12 +97,157 @@ TBD
 
 ## Pausing and resuming triggers
 
+Triggers can be paused and resumed. Paused triggers will not fire and associated jobs will not be executed.
+To pause a trigger, use `clojurewerkz.quartzite.scheduler/pause-trigger` and pass it the trigger's key:
+
+{% gist 64c07a8476c07114ffc4 %}
+
+`clojurewerkz.quartzite.scheduler/pause-triggers` will pause one or several groups of triggers. What groups
+are paused is determined by the *group matcher*, instantiated via Java interop:
+
+{% gist 553404903de55b0ee524 %}
+
+In addition to the exact matcher, there are several other matchers available:
+
+{% gist dcd5d0191fa4dea461d3 %}
+
+Resuming a trigger makes it fire again. `clojurewerkz.quartzite.scheduler/resume-trigger` is the function that does
+that for a single trigger:
+
+{% gist f170d475f4c1b684fe24 %}
+
+`clojurewerkz.quartzite.scheduler/resume-triggers` resumes one or more trigger groups using the already covered group matchers:
+
+{% gist 55b59aab0cdee57192d4 %}
+
+Finally, `clojurewerkz.quartzite.scheduler/pause-all!` and `clojurewerkz.quartzite.scheduler/resume-all!` are functions
+that pause and resume *the entire scheduler*. Use them carefully. Both take no arguments.
+
+
+## Completely removing trigger from the scheduler
+
+It is possible to completely remove a trigger from the scheduler. Doing so will also remove *all the associated triggers*. The trigger
+will never be executed again (unless it is re-scheduled). `clojurewerkz.quartzite.scheduler/delete-trigger` deletes
+a single trigger by trigger key:
+
+{% gist d810569ddd29ef14aa38 %}
+
+while `clojurewerkz.quartzite.scheduler/delete-triggers` removes multiple triggers and takes a collection of keys:
+
+{% gist aaf691775e539d0e1949 %}
+
+
+
+## Misfires
+
+A misfire occurs if a persistent trigger "misses" its firing time because of being paused, the scheduler being shutdown, or because there are no
+available threads in Quartz's thread pool for executing the job.
+
+The different trigger types have different misfire instructions available to them. By default they use a 'smart policy' instruction which has dynamic
+behavior based on trigger type and configuration. When the scheduler starts, it searches for any persistent triggers that have misfired, and it then
+updates each of them based on their individually configured misfire instructions.
+
+Not all misfire instructions make sense for all triggers. Different triggers use different schedules and thus misfire instructions
+available to them depend 
+
+### Misfire Instructions Available to All Triggers
+
+#### The "Ignore Misfires" Instruction
+
+The "ignore misfires" instruction instructs the scheduler should simply fire the trigger as soon as it can, as many
+times as necessary to catch back up with the schedule. This means the trigger may fire multiple times in rapid succession.
+
+A code example that uses this instruction:
+
+{% gist 31a9fa1932ce837716cf %}
+
+
+
+### Misfire Instructions Available to Triggers That Use the Simple Schedule
+
+#### The "Fire Now" Instruction
+
+A code example that uses this instruction:
+
+{% gist 3f0a3fb21d10138161e9 %}
+
+#### The "Next With Existing Repeat Count" Instruction
+
+A code example that uses this instruction:
+
+{% gist dd72364b8f74af19fd93 %}
+
+#### The "Next With Remaining Repeat Count" Instruction
+
+A code example that uses this instruction:
+
+{% gist ee796fd54ee3cfa30581 %}
+
+#### The "Now With Existing Repeat Count" Instruction
+
+A code example that uses this instruction:
+
+{% gist 465328e3ddc308348f1b %}
+
+TBD
+
+#### The "Now With Remaining Repeat Count" Instruction
+
+A code example that uses this instruction:
+
+{% gist 3594aca7d799cb6403ba %}
+
 TBD
 
 
-## Completely removing triggers from the scheduler
 
-TBD
+### Misfire Instructions Available to Triggers That Use the Daily Time Interval Schedule
+
+#### The "Fire Once Now" Instruction
+
+A code example that uses this instruction:
+
+{% gist 9a150703f13205abb3d2 %}
+
+#### The "Do Nothing" Instruction
+
+A code example that uses this instruction:
+
+{% gist 5376047d4930d1ff1647 %}
+
+
+
+### Misfire Instructions Available to Triggers That Use the Calendar Interval Schedule
+
+#### The "Fire Once Now" Instruction
+
+A code example that uses this instruction:
+
+{% gist c252862174dec3ce5eee %}
+
+#### The "Do Nothing" Instruction
+
+A code example that uses this instruction:
+
+{% gist e88f2032091373409d8f %}
+
+
+
+### Misfire Instructions Available to Triggers That Use the Cron Schedule
+
+#### The "Fire Once Now" Instruction
+
+A code example that uses this instruction:
+
+{% gist 90f53d0fc2a0a64e21a5 %}
+
+#### The "Do Nothing" Instruction
+
+A code example that uses this instruction:
+
+{% gist baf719b27a62118b056e %}
+
+
 
 
 ## What to read next

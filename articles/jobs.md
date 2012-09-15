@@ -24,7 +24,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.0.0-rc6`.
+This guide covers Quartzite `1.0.x`.
 
 
 ## Overview
@@ -84,20 +84,78 @@ provides convenience functions to convert Clojure maps to job detail maps and vi
 TBD
 
 
+## Scheduling jobs for execution
 
-## Submitting jobs for execution
+`clojurewerkz.quartzite.scheduler/schedule` submits a job and a trigger associated with it for execution:
 
-TBD
+{% gist de06e30b0b188bfce5f8 %}
+
+If the scheduler is started, execution begins according to the start moment of the submitted trigger. In the example above, the trigger
+will fire 10 times every 200 ms and expire after that. Expired triggers do not execute associated jobs.
+
+
+## Unscheduling jobs
+
+To unschedule an operation, you unschedule its trigger (or several of them) using `clojurewerkz.quartzite.scheduler/unschedule-job`
+and `clojurewerkz.quartzite.scheduler/unschedule-jobs` functions:
+
+{% gist 78e43f36ea261657b7c5 %}
+
+Please note that `unschedule-job` takes a *trigger* key. `clojurewerkz.quartzite.scheduler/unschedule-jobs` works the same way but
+takes a collection of keys.
+
+There are other functions that delete jbos and all their triggers, pause execution of triggers and so on. They are covered in the
+[Scheduling, unscheduling and pausing jobs](/articles/unscheduling_and_pausing.html) guide.
 
 
 ## Pausing and resuming jobs
 
-TBD
+Jobs can be paused and resumed. Pausing a job pauses all of its triggers so the job won't be executed but is not removed from
+the scheduler. To pause a single job, use `clojurewerkz.quartzite.scheduler/pause-job` and pass it the job's key:
+
+{% gist fef827c935c46a14c4d6 %}
+
+`clojurewerkz.quartzite.scheduler/pause-jobs` will pause one or several groups of jobs by pausing their triggers. What groups
+are paused is determined by the *group matcher*, instantiated via Java interop:
+
+{% gist 5d40ead93175447be57e %}
+
+In addition to the exact matcher, there are several other matchers available:
+
+{% gist dcd5d0191fa4dea461d3 %}
+
+Resuming a job makes all its triggers fire again. `clojurewerkz.quartzite.scheduler/resume-job` is the function that does
+that for a single job:
+
+{% gist 71a9fc5637912b1ec0af %}
+
+`clojurewerkz.quartzite.scheduler/resume-jobs` resumes one or more job groups using the already covered group matchers:
+
+{% gist 19e7d950de3c279b8756 %}
+
+Finally, `clojurewerkz.quartzite.scheduler/pause-all!` and `clojurewerkz.quartzite.scheduler/resume-all!` are functions
+that pause and resume *the entire scheduler*. Use them carefully. Both take no arguments.
+
+### Jobs and Trigger Misfires
+
+A misfire occurs if a persistent trigger "misses" its firing time because of being paused, the scheduler being shutdown, or because there are no
+available threads in Quartz's thread pool for executing the job. When a job is resumed, if any of its triggers have missed
+one or more fire-times, the trigger's misfire instruction will apply.
+
+Misfires are covered in the [triggers guide](/articles/triggers.html).
 
 
 ## Completely removing jobs from the scheduler
 
-TBD
+It is possible to completely remove a job from the scheduler. Doing so will also remove *all the associated triggers*. The job
+will never be executed again (unless it is re-scheduled). `clojurewerkz.quartzite.scheduler/delete-job` deletes
+a single job by job key:
+
+{% gist 3fcc732121cedf45ea76 %}
+
+while `clojurewerkz.quartzite.scheduler/delete-jobs` removes multiple jobs and takes a collection of keys:
+
+{% gist f69e11989ec9fd8f72ad %}
 
 
 
