@@ -167,11 +167,18 @@ A code example that uses this instruction:
 
 #### The "Fire Now" Instruction
 
+Instructs the scheduler to fire the trigger immediately upon misfire. Should only be used for one-shot
+(non-repeating) timers.
+
 A code example that uses this instruction:
 
 {% gist 3f0a3fb21d10138161e9 %}
 
 #### The "Next With Existing Repeat Count" Instruction
+
+Instructs the scheduler to re-schedule the trigger to the next scheduled time after "now" with
+the repeat counter unchanged. If the end time of the trigger has arrived, the trigger will be
+marked as completed (will not fire again).
 
 A code example that uses this instruction:
 
@@ -179,25 +186,32 @@ A code example that uses this instruction:
 
 #### The "Next With Remaining Repeat Count" Instruction
 
+Instructs the scheduler to re-schedule the trigger to the next scheduled time after "now"
+and changes the repeat counter to what it would be, if it had not missed any fires.
+
+If the end time of the trigger has arrived, the trigger will be marked as completed (will not fire again).
+
 A code example that uses this instruction:
 
 {% gist ee796fd54ee3cfa30581 %}
 
 #### The "Now With Existing Repeat Count" Instruction
 
+Instructs the scheduler to fire the trigger "now" and not change the repeat count. If "now" is after the trigger's
+end time, the trigger will not fire.
+
 A code example that uses this instruction:
 
 {% gist 465328e3ddc308348f1b %}
 
-TBD
-
 #### The "Now With Remaining Repeat Count" Instruction
+
+Instructs the scheduler to fire the trigger "now" and changes the repeat counter to what it would be, if it had not
+missed any fires. If "now" is after the trigger's end time, the trigger will not fire.
 
 A code example that uses this instruction:
 
 {% gist 3594aca7d799cb6403ba %}
-
-TBD
 
 
 
@@ -205,11 +219,15 @@ TBD
 
 #### The "Fire Once Now" Instruction
 
+Instructs the scheduler to fire the trigger immediately upon misfire.
+
 A code example that uses this instruction:
 
 {% gist 9a150703f13205abb3d2 %}
 
 #### The "Do Nothing" Instruction
+
+Instructs the scheduler to do nothing.
 
 A code example that uses this instruction:
 
@@ -221,11 +239,15 @@ A code example that uses this instruction:
 
 #### The "Fire Once Now" Instruction
 
+Instructs the scheduler to fire the trigger immediately upon misfire.
+
 A code example that uses this instruction:
 
 {% gist c252862174dec3ce5eee %}
 
 #### The "Do Nothing" Instruction
+
+Instructs the scheduler to do nothing.
 
 A code example that uses this instruction:
 
@@ -237,11 +259,15 @@ A code example that uses this instruction:
 
 #### The "Fire Once Now" Instruction
 
+Instructs the scheduler to fire the trigger immediately upon misfire.
+
 A code example that uses this instruction:
 
 {% gist 90f53d0fc2a0a64e21a5 %}
 
 #### The "Do Nothing" Instruction
+
+Instructs the scheduler to do nothing.
 
 A code example that uses this instruction:
 
