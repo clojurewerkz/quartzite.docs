@@ -73,15 +73,25 @@ that perform periodic data aggregation from those that generate invoices.
 
 
 
-## Using Quartz jobs contexts and data maps
+## Jobs contexts and job data maps
 
 Many jobs will need some kind of context to carry out their duties. For example, an aggregation job associated with a particular account will need
 that account's id in order to load it from a data store. A job that involves retrieving Web pages may need the URL to use and so on.
 
-Quartz (and in turn, Quartzite) allow jobs and triggers to be given a *job detail map*. It is an object that is effectively a map. Quartzite
-provides convenience functions to convert Clojure maps to job detail maps and vice versa.
+When Quartz executes a job, it will pass it a **job context** object that among other things, includes arbitrary data that the job needs.
 
-TBD
+Lets take a look at a simplest Quartzite job possible:
+
+{% gist 1fb0eb95d00cf2030db3 %}
+
+It takes the aforementioned **job context** which is an instance of [JobExecutionContext](http://quartz-scheduler.org/api/2.1.5/org/quartz/JobExecutionContext.html).
+The job execution context you can retrieve **job data map**. Quartzite offers a function that returns **job data map** as an immutable Clojure map:
+
+{% gist 1fc14e13304951430b2b %}
+
+Job data is optional and can be added via the job definition DSL:
+
+{% gist e565e0520803ef7f8d3f %}
 
 
 ## Scheduling jobs for execution

@@ -90,9 +90,6 @@ without having to deal with Cron expressions:
 {% gist 0ec2b70b395d754d8409 %}
 
 
-## Jobs contexts and passing data maps to jobs
-
-TBD
 
 
 ## Pausing and resuming triggers

@@ -31,7 +31,7 @@ This guide covers:
 
  * How to define periodically executed jobs
  * Using job keys to identify jobs
- * Using job contexts and data maps
+ * How to pass context information to executed jobs
  * How to pause jobs
  * How to resume jobs
  * How to delete jobs
@@ -44,7 +44,6 @@ This guide covers:
  * How to define triggers
  * Using trigger keys to identify triggers
  * How to use various types of schedules
- * How to pass context information to executed jobs
  * How to pause triggers
  * How to resume triggers
  * How to delete triggers
