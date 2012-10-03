@@ -110,12 +110,10 @@ The documentation is organized as a number of guides, covering all kinds of topi
 
 We recommend that you read the following guides first, if possible, in this order:
 
- * [Defining jobs](/jobs.html)
- * [Defining triggers and schedules](/triggers.html)
- * [Scheduling, unscheduling and pausing jobs](/unscheduling_and_pausing.html)
- * [Querying the scheduler](/querying.html)
- * [Using persistent stores for scheduler state](/persistent_quartz_stores.html)
- * [Using Quartz plugins](/quartz_plugins.html)
+ * [Defining jobs](/articles/jobs.html)
+ * [Defining triggers and schedules](/articles/triggers.html)
+ * [Using persistent stores for scheduler state](/articles/persistent_quartz_stores.html)
+ * [Using Quartz plugins](/articles/quartz_plugins.html)
 
 
 ## Tell Us What You Think!
