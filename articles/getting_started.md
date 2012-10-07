@@ -163,15 +163,17 @@ There are other functions that delete jbos and all their triggers, pause executi
 
 ## Using Cron expression schedules
 
-One of the schedule types that Quartz supports is the Cron expression schedule. It lets you define the schedule as a single expression used
-by cron(8)(http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
+One of the schedule types that Quartz supports is the Cron expression schedule. It lets you define the schedule as a single expression 
+similar to those used with cron(8)(http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
 are most commonly used when migrating legacy applications or by developers who are deeply familiar with Cron.
 
 To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron` namespaces:
 
 {% gist 4fdad0672e53b96b5732 %}
 
-To learn more about Cron expressions, consult [crontab(5)](http://linux.die.net/man/5/crontab).
+The Quartz cron expressions are more powerful than the traditional [crontab(5)](http://linux.die.net/man/5/crontab) spec, providing
+an additional field for seconds, a special character for "increments" and more. See the [CronExpression](http://www.quartz-scheduler.org/api/2.1.5/org/quartz/CronExpression.html)
+javadoc for more details.
 
 
 ## Using calendar interval schedules
