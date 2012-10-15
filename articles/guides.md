@@ -49,11 +49,14 @@ This guide covers:
  * How to delete triggers
 
 
-### [Using persistent stores for scheduler state](/articles/persistent_quartz_stores.html)
+### [Using Durable Stores For Scheduler State](/articles/durable_quartz_stores.html)
 
 This guide covers:
 
- * TBD
+ * Overview of durable and transients job stores
+ * Available durable job stores
+ * Quartz and Clojure class loaders
+ * How to use durable job stores with Quartzite
 
 
 ### [Using Quartz plugins](/articles/quartz_plugins.html)
