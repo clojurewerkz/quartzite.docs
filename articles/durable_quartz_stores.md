@@ -70,4 +70,4 @@ bit of glue code. Quartzite authors continue looking for a good generic solution
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.0.x`.
+This guide covers Quartzite `1.1.x` (including beta releases).

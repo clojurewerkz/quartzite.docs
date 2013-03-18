@@ -24,7 +24,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.0.x`.
+This guide covers Quartzite `1.1.x` (including beta releases).
 
 
 ## Overview
@@ -88,6 +88,9 @@ It takes the aforementioned **job context** which is an instance of [JobExecutio
 The job execution context you can retrieve **job data map**. Quartzite offers a function that returns **job data map** as an immutable Clojure map:
 
 {% gist 1fc14e13304951430b2b %}
+
+Note that **Quartzite will always stringify keys** when converting Clojure maps to the internal job context representation. This is because Quartz
+and some of its extensions assume that keys are strings.
 
 Job data is optional and can be added via the job definition DSL:
 
