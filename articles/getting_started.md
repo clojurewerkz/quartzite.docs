@@ -49,14 +49,14 @@ Quartzite is built from the ground up for Clojure 1.3 and later.
 
 ### With Leiningen
 
-    [clojurewerkz/quartzite "1.1.0-beta1"]
+    [clojurewerkz/quartzite "1.1.0"]
 
 ### With Maven
 
     <dependency>
       <groupId>clojurewerkz</groupId>
       <artifactId>quartzite</artifactId>
-      <version>1.1.0-beta1</version>
+      <version>1.1.0</version>
     </dependency>
 
 It is recommended to stay up-to-date with new versions. New releases and important changes are announced [@ClojureWerkz](http://twitter.com/ClojureWerkz).
