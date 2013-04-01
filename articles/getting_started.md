@@ -36,8 +36,8 @@ from the extensibility of Quartz, for example, pluggable durable schedule stores
 
 ### Project Maturity
 
-Quartzite is a fairly project. It is past the 1.0 release, about 1 year old with active use from day one. The API is locked down and new features are introduced
-only if they are really necessary.
+Quartzite is a fairly mature project. It is past the 1.0 release, about 1 year old with active use from day one. The API is locked down and new features
+are introduced only if they are really necessary.
 
 
 ## Supported Clojure versions
