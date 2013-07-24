@@ -74,7 +74,14 @@ applications use to integrate scheduling functionality.
 Quartzite is built on top Quartz. In Quartz, a scheduler is a temporary database of jobs, schedules and other related information. Before jobs can be submitted for execution,
 the scheduler has to be initialized with the `clojurewerkz.quartzite.scheduler/initialize` function:
 
-{% gist aebee54cde1563207b19 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]))
+
+(defn -main
+  [& m]
+  (qs/initialize))
+```
 
 This function starts a an instance of Quartz scheduler that maintains a thread pool of non-daemon threads. Using this function in
 the top-level namespace code is a **bad idea**: it will cause Leiningen tasks like `lein jar` to hang forever because Quartz threads will prevent
@@ -82,7 +89,15 @@ JVM from exiting.
 
 When Quartzite scheduler is initialized, it does not trigger jobs until it is started using `clojurewerkz.quartzite.scheduler/start`. Very often this will happen on application start up:
 
-{% gist 73a4649e06699246ff82 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start))
+```
 
 
 
@@ -100,7 +115,13 @@ that you use to manage them, for example, unschedule, pause or resume.
 Jobs in Quartz are objects that implement `org.quartz.Job`, a single function interface. One way to define a job is to define a record
 that implements that interface:
 
-{% gist 65ff3d357ae69416287d %}
+``` clojure
+(defrecord NoOpJob []
+  org.quartz.Job
+  (execute [this ctx]
+    ;; intentional no-op
+    ))
+```
 
 This does not look very Clojuric, does it. Because jobs are single method interfaces, it makes perfect sense to use Clojure functions as jobs.
 Unfortunately, due to certain Quartz implementation details and the way Clojure loads generated classes, many approaches to using
@@ -109,13 +130,42 @@ functions do not work.
 Quartzite provides a macro that makes defining jobs more concise but avoids limitations of using proxies and reification. The macro
 is `clojurewerkz.quartzite.jobs/defjob`:
 
-{% gist 07ac8e17a0d1181c0ba1 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :refer [defjob]]))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+```
 
 These examples demonstrate defining the "executable part" of a job. As we've mentioned before, to make it possible to manage jobs and triggers,
 Quartz requires them to have identities. To define a complete job that can be submitted for scheduling, you use a DSL in the `clojurewerkz.quartzite.jobs`
 namespace:
 
-{% gist 8095389fc6dbe4ec224b %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))]))
+```
 
 `clojurewerkz.quartzite.jobs/key` function can be used with any other function that accepts job keys.
 
@@ -127,7 +177,22 @@ Now that we know how jobs are defined, lets move on to triggers.
 Triggers are defined using another DSL, this time from the `clojurewerkz.quartzite.triggers` namespace. Lets define a trigger that fires
 (executes its associated job) 10 times every 200 ms, starting immediately:
 
-{% gist cfa1d575050843aeca35 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-repeat-count 10)
+                                     (with-interval-in-milliseconds 200))))]))
+```
 
 So how triggers are defined is quite similar to how jobs are defined. Quartz provides several types of execution schedules
 and Quartzite supports all of them in the DSL. A couple more schedule types will be demonstrated later in this guide.
@@ -141,7 +206,33 @@ Now that we know how to define jobs and triggers, lets schedule them for executi
 
 `clojurewerkz.quartzite.scheduler/schedule` submits a job and a trigger associated with it for execution:
 
-{% gist de06e30b0b188bfce5f8 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.simple :refer [schedule with-repeat-count with-interval-in-milliseconds]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-repeat-count 10)
+                                     (with-interval-in-milliseconds 200))))]
+  (qs/schedule job trigger)))
+```
 
 If the scheduler is started, execution begins according to the start moment of the submitted trigger. In the example above, the trigger
 will fire 10 times every 200 ms and expire after that. Expired triggers do not execute associated jobs.
@@ -152,7 +243,37 @@ will fire 10 times every 200 ms and expire after that. Expired triggers do not e
 To unschedule an operation, you unschedule its trigger (or several of them) using `clojurewerkz.quartzite.scheduler/unschedule-job`
 and `clojurewerkz.quartzite.scheduler/unschedule-jobs` functions:
 
-{% gist 78e43f36ea261657b7c5 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.simple :refer [schedule with-repeat-count with-interval-in-milliseconds]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        tk      (t/key "triggers.1")
+        trigger (t/build
+                  (t/with-identity tk)
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-repeat-count 10)
+                                     (with-interval-in-milliseconds 200))))]
+  ;; submit for execution
+  (qs/schedule job trigger)
+  ;; and immediately unschedule the trigger
+  (qs/unschedule-job tk)))
+```
 
 Please note that `unschedule-job` takes a *trigger* key. `clojurewerkz.quartzite.scheduler/unschedule-jobs` works the same way but
 takes a collection of keys.
@@ -169,7 +290,32 @@ are most commonly used when migrating legacy applications or by developers who a
 
 To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron` namespaces:
 
-{% gist 4fdad0672e53b96b5732 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.cron :refer [schedule cron-schedule]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (cron-schedule "0 0 15 ? * 5"))))]
+  (qs/schedule job trigger)))
+```
 
 The Quartz cron expressions are more powerful than the traditional [crontab(5)](http://linux.die.net/man/5/crontab) spec, providing
 an additional field for seconds, a special character for "increments" and more. See the [CronExpression](http://www.quartz-scheduler.org/api/2.1.5/org/quartz/CronExpression.html)
@@ -181,7 +327,32 @@ javadoc for more details.
 Third type of trigger schdule is the calendar interval schedule. It fires at fixed intervals: minutes, hours, days, weeks, months or years.
 In this example, we use intervals of 1 day:
 
-{% gist aa70ce2fbf668794d4f8 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.calendar-interval :refer [schedule with-interval-in-days]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-interval-in-days 1))))]
+  (qs/schedule job trigger)))
+```
 
 
 ## Using daily interval schedules
@@ -196,7 +367,35 @@ Daily interval schedules make it easy to define schedules like
 
 without having to deal with Cron expressions:
 
-{% gist 0ec2b70b395d754d8409 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.daily-interval :refer [schedule monday-through-friday starting-daily-at time-of-day ending-daily-at with-interval-in-minutes]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-interval-in-minutes 2)
+                                     (monday-through-friday)
+                                     (starting-daily-at (time-of-day 9 00 00))
+                                     (ending-daily-at (time-of-day 17 00 00)))))]
+  (qs/schedule job trigger)))
+```
 
 
 
