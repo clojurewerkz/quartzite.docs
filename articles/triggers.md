@@ -35,7 +35,22 @@ that you use to manage them, for example, unschedule, pause or resume.
 Triggers are defined using a DSL from the `clojurewerkz.quartzite.triggers` namespace. Lets define a trigger that fires
 (executes its associated job) 10 times every 200 ms, starting immediately:
 
-{% gist cfa1d575050843aeca35 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-repeat-count 10)
+                                     (with-interval-in-milliseconds 200))))]))
+```
 
 So how triggers are defined is quite similar to how jobs are defined. Quartz provides several types of execution schedules
 and Quartzite supports all of them in the DSL. A couple more schedule types will be demonstrated later in this guide.
@@ -48,7 +63,20 @@ Simple periodic schedule demonstrated here is used when you need to perform a ta
 In order to pause or completely remove a job from the scheduler, there needs to be a way to identify it. Job identifiers are called "keys". A key consists
 of a string identifier and an (optional) group. To instantiate keys, use `clojurewerkz.quartzite.triggers/key` function:
 
-{% gist 9bebc5795ef1bf696c39 %}
+``` clojure
+(ns quartzite.docs.examples
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t])
+  (:import java.util.UUID))
+
+;; this key uses the default group
+;; and features account id in the identifier (to guarantee uniqueness)
+(t/key "invoices.102")
+
+;; this key uses a custom group
+;; and uses a random UUID as the identifier
+(t/key (str (UUID/randomUUID)) "aggregators")
+```
 
 When group is not specified, the default group is used. It is common to use groups to "namespace" triggers, for example, to separate triggers
 that schdule periodic data aggregation from those that generate invoices.
@@ -57,12 +85,37 @@ that schdule periodic data aggregation from those that generate invoices.
 ## Using Cron expression schedules
 
 One of the schedule types that Quartz supports is the Cron expression schedule. It lets you define the schedule as a single expression used
-by cron(8)(http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
+by [cron(8)](http://linux.die.net/man/8/cron). This form is concise but may also seem cryptic. As such, Cron schedules
 are most commonly used when migrating legacy applications or by developers who are deeply familiar with Cron.
 
 To define a trigger that will use a Cron expression schedule, you combine DSLs from `clojurewerkz.quartzite.triggers` and `clojurewerkz.quartzite.schedule.cron` namespaces:
 
-{% gist 4fdad0672e53b96b5732 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.cron :refer [schedule cron-schedule]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (cron-schedule "0 0 15 ? * 5"))))]
+  (qs/schedule job trigger)))
+```
 
 To learn more about Cron expressions, consult [crontab(5)](http://linux.die.net/man/5/crontab).
 
@@ -72,7 +125,32 @@ To learn more about Cron expressions, consult [crontab(5)](http://linux.die.net/
 Third type of trigger schdule is the calendar interval schedule. It fires at fixed intervals: minutes, hours, days, weeks, months or years.
 In this example, we use intervals of 1 day:
 
-{% gist aa70ce2fbf668794d4f8 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.calendar-interval :refer [schedule with-interval-in-days]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-interval-in-days 1))))]
+  (qs/schedule job trigger)))
+```
 
 
 ## Using daily interval schedules
@@ -87,7 +165,35 @@ Daily interval schedules make it easy to define schedules like
 
 without having to deal with Cron expressions:
 
-{% gist 0ec2b70b395d754d8409 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.daily-interval :refer [schedule monday-through-friday starting-daily-at time-of-day ending-daily-at with-interval-in-minutes]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+              (j/of-type NoOpJob)
+              (j/with-identity (j/key "jobs.noop.1")))
+        trigger (t/build
+                  (t/with-identity (t/key "triggers.1"))
+                  (t/start-now)
+                  (t/with-schedule (schedule
+                                     (with-interval-in-minutes 2)
+                                     (monday-through-friday)
+                                     (starting-daily-at (time-of-day 9 00 00))
+                                     (ending-daily-at (time-of-day 17 00 00)))))]
+  (qs/schedule job trigger)))
+```
 
 
 
@@ -97,25 +203,110 @@ without having to deal with Cron expressions:
 Triggers can be paused and resumed. Paused triggers will not fire and associated jobs will not be executed.
 To pause a trigger, use `clojurewerkz.quartzite.scheduler/pause-trigger` and pass it the trigger's key:
 
-{% gist 64c07a8476c07114ffc4 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.triggers :as t]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]
+            [clojurewerkz.quartzite.schedule.simple :refer [schedule with-repeat-count with-interval-in-milliseconds]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [job (j/build
+             (j/of-type NoOpJob)
+             (j/with-identity (j/key "jobs.noop.1")))
+        tk      (t/key "triggers.1")
+        trigger (t/build
+                 (t/with-identity tk)
+                 (t/start-now)
+                 (t/with-schedule (schedule
+                                   (with-repeat-count 10)
+                                   (with-interval-in-milliseconds 200))))]
+    (qs/schedule job trigger)
+    (qs/pause-trigger tk)))
+```
 
 `clojurewerkz.quartzite.scheduler/pause-triggers` will pause one or several groups of triggers. What groups
 are paused is determined by the *group matcher*, instantiated via Java interop:
 
-{% gist 553404903de55b0ee524 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j]
+	    [clojurewerkz.quartzite.jobs :refer [defjob]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [tk  (t/key "jobs.noop.1")]
+    ;; pauses a single trigger
+    (qs/pause-trigger tk)))
+```
 
 In addition to the exact matcher, there are several other matchers available:
 
-{% gist dcd5d0191fa4dea461d3 %}
+``` clojure
+(import org.quartz.impl.matchers.GroupMatcher)
+
+(GroupMatcher/groupStartsWith "billing")
+(GroupMatcher/groupEndsWith "delayed")
+(GroupMatcher/groupContains "organizations")
+```
 
 Resuming a trigger makes it fire again. `clojurewerkz.quartzite.scheduler/resume-trigger` is the function that does
 that for a single trigger:
 
-{% gist f170d475f4c1b684fe24 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j])
+  (:use [clojurewerkz.quartzite.jobs :only [defjob]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [tk  (t/key "jobs.noop.1")]
+    ;; resumes a single trigger
+    (qs/resume-trigger tk)))
+```
 
 `clojurewerkz.quartzite.scheduler/resume-triggers` resumes one or more trigger groups using the already covered group matchers:
 
-{% gist 55b59aab0cdee57192d4 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j])
+  (:use [clojurewerkz.quartzite.jobs :only [defjob]])
+  (:import org.quartz.impl.matchers.GroupMatcher))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  ;; resumes a group of triggers
+  (qs/resume-triggers (GroupMatcher/groupEquals "billing")))
+```
 
 Finally, `clojurewerkz.quartzite.scheduler/pause-all!` and `clojurewerkz.quartzite.scheduler/resume-all!` are functions
 that pause and resume *the entire scheduler*. Use them carefully. Both take no arguments.
@@ -127,11 +318,47 @@ It is possible to completely remove a trigger from the scheduler. Doing so will 
 will never be executed again (unless it is re-scheduled). `clojurewerkz.quartzite.scheduler/delete-trigger` deletes
 a single trigger by trigger key:
 
-{% gist d810569ddd29ef14aa38 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j])
+  (:use [clojurewerkz.quartzite.jobs :only [defjob]]))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  (let [tk  (t/key "jobs.noop.1")]
+    ;; deletes a single trigger
+    (qs/delete-trigger tk)))
+```
 
 while `clojurewerkz.quartzite.scheduler/delete-triggers` removes multiple triggers and takes a collection of keys:
 
-{% gist aaf691775e539d0e1949 %}
+``` clojure
+(ns my.service
+  (:require [clojurewerkz.quartzite.scheduler :as qs]
+            [clojurewerkz.quartzite.jobs :as j])
+  (:use [clojurewerkz.quartzite.jobs :only [defjob]])
+  (:import org.quartz.impl.matchers.GroupMatcher))
+
+(defjob NoOpJob
+  [ctx]
+  (comment "Does nothing"))
+
+(defn -main
+  [& m]
+  (qs/initialize)
+  (qs/start)
+  ;; deletes a group of triggers
+  (let [tk1 (t/key "jobs.noop.1")
+        tk2 (t/key "jobs.noop.2")]
+    (qs/delete-triggers [tk1 tk2])))
+```
 
 
 
@@ -156,7 +383,18 @@ times as necessary to catch back up with the schedule. This means the trigger ma
 
 A code example that uses this instruction:
 
-{% gist 31a9fa1932ce837716cf %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/ignore-misfires)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 
 
@@ -169,7 +407,18 @@ Instructs the scheduler to fire the trigger immediately upon misfire. Should onl
 
 A code example that uses this instruction:
 
-{% gist 3f0a3fb21d10138161e9 %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-next-with-existing-count)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 #### The "Next With Existing Repeat Count" Instruction
 
@@ -179,7 +428,18 @@ marked as completed (will not fire again).
 
 A code example that uses this instruction:
 
-{% gist dd72364b8f74af19fd93 %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-next-with-existing-count)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 #### The "Next With Remaining Repeat Count" Instruction
 
@@ -190,7 +450,18 @@ If the end time of the trigger has arrived, the trigger will be marked as comple
 
 A code example that uses this instruction:
 
-{% gist ee796fd54ee3cfa30581 %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-next-with-remaining-count)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 #### The "Now With Existing Repeat Count" Instruction
 
@@ -199,7 +470,18 @@ end time, the trigger will not fire.
 
 A code example that uses this instruction:
 
-{% gist 465328e3ddc308348f1b %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-now-with-existing-count)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 #### The "Now With Remaining Repeat Count" Instruction
 
@@ -208,7 +490,18 @@ missed any fires. If "now" is after the trigger's end time, the trigger will not
 
 A code example that uses this instruction:
 
-{% gist 3594aca7d799cb6403ba %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.simple :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-now-with-remaining-count)
+                   (s/with-repeat-count 10)
+                   (s/with-interval-in-seconds 2))))
+```
 
 
 
@@ -240,7 +533,17 @@ Instructs the scheduler to fire the trigger immediately upon misfire.
 
 A code example that uses this instruction:
 
-{% gist c252862174dec3ce5eee %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.calendar-interval :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-fire-and-proceed)
+                   (s/with-interval-in-hours 12))))
+```
 
 #### The "Do Nothing" Instruction
 
@@ -248,7 +551,17 @@ Instructs the scheduler to do nothing.
 
 A code example that uses this instruction:
 
-{% gist e88f2032091373409d8f %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.calendar-interval :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-do-nothing)
+                   (s/with-interval-in-hours 12))))
+```
 
 
 
@@ -260,7 +573,18 @@ Instructs the scheduler to fire the trigger immediately upon misfire.
 
 A code example that uses this instruction:
 
-{% gist 90f53d0fc2a0a64e21a5 %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.cron :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-fire-and-proceed)
+                   (s/in-time-zone (java.util.TimeZone/getTimeZone "Europe/Moscow"))
+                   (s/cron-schedule "0 0 12 15 * ?"))))
+```
 
 #### The "Do Nothing" Instruction
 
@@ -268,7 +592,18 @@ Instructs the scheduler to do nothing.
 
 A code example that uses this instruction:
 
-{% gist baf719b27a62118b056e %}
+``` clojure
+(require '[clojurewerkz.quartzite.triggers :as t])
+(require '[clojurewerkz.quartzite.schedule.cron :as s])
+
+(t/build
+ (t/start-now)
+ (t/with-identity "id1" "group1")
+ (t/with-schedule (s/schedule
+                   (s/with-misfire-handling-instruction-do-nothing)
+                   (s/in-time-zone (java.util.TimeZone/getTimeZone "Europe/Moscow"))
+                   (s/cron-schedule "0 0 12 15 * ?"))))
+```
 
 
 
