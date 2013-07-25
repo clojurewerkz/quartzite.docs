@@ -49,11 +49,41 @@ A solution to this issue is described in the following section.
 A solution to the different class laoders issue is to subclass the job store class and (if it allows this) make it use
 Clojure's `clojure.lang.DynamicClassLoader`:
 
-{% gist 7db0e35c176afa43d761 %}
+``` java
+package megacorp.myservice.quartz;
+
+import clojure.lang.DynamicClassLoader;
+import com.novemberain.quartz.mongodb.MongoDBJobStore;
+
+public class JobStore extends MongoDBJobStore implements org.quartz.spi.JobStore {
+  @Override
+  protected ClassLoader getJobClassLoader() {
+    // makes it possible for Quartz to load and instantiate jobs that are defined
+    // using defrecord without AOT compilation.
+    return new DynamicClassLoader();
+  }
+}
+```
 
 and then configure Quartz to use it via the `quartz.properties` file:
 
-{% gist 8fec4aa1e03fd625f4bf %}
+```
+org.quartz.scheduler.instanceName = MyServiceScheduler
+org.quartz.threadPool.threadCount = 4
+
+## Use MongoDB-backed store to persistently store information about
+# scheduled jobs, triggers and their state.
+#
+org.quartz.jobStore.class=megacorp.myservice.quartz.JobStore
+org.quartz.jobStore.addresses=127.0.0.1
+org.quartz.jobStore.dbName=myservice_production
+org.quartz.jobStore.collectionPrefix=quartz
+
+## Quartz plugins
+#
+org.quartz.plugin.triggHistory.class = org.quartz.plugins.history.LoggingTriggerHistoryPlugin
+org.quartz.plugin.jobHistory.class = org.quartz.plugins.history.LoggingJobHistoryPlugin
+```
 
 For more information about mixed Clojure/Java projects, see [Clojure/Java projects with Leiningen 2+](https://github.com/technomancy/leiningen/blob/master/doc/MIXED_PROJECTS.md).
 
