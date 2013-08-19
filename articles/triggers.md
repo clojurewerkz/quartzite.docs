@@ -617,7 +617,7 @@ We recommend that you read the following guides first, if possible, in this orde
  * [Defining triggers and schedules](/articles/triggers.html)
  * [Scheduling, unscheduling and pausing jobs](/articles/unscheduling_and_pausing.html)
  * [Querying the scheduler](/articles/querying.html)
- * [Using persistent stores for scheduler state](/articles/persistent_quartz_stores.html)
+ * [Using durable stores for scheduler state](/articles/durable_quartz_stores.html)
  * [Using Quartz plugins](/articles/quartz_plugins.html)
 
 
