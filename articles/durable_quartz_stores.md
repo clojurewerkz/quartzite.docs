@@ -46,7 +46,70 @@ A solution to this issue is described in the following section.
 
 ## How to use durable job stores with Quartzite
 
-A solution to the different class laoders issue is to subclass the job store class and (if it allows this) make it use
+### With a SQL Database
+
+Quartz provides several classes for JDBC-backed job stores. This solution was
+tested using the JobStoreTX class which should be used in applications that
+are not running inside an application server like Immutant or JBoss AS.
+
+To allow Quartz to see classes the Clojure compiler generates, we must provide a
+custom implementation of the ClassLoadHelper class which Quartz uses for
+discovering classes. A working implementation is below:
+
+``` java
+// Example package
+package oceania.myservice.quartz;
+
+import clojure.lang.DynamicClassLoader;
+import org.quartz.spi.ClassLoadHelper;
+
+public class DynamicClassLoadHelper extends DynamicClassLoader implements ClassLoadHelper {
+    public void initialize() {}
+
+    @SuppressWarnings("unchecked")
+    public <T> Class<? extends T> loadClass(String name, Class<T> clazz)
+        throws ClassNotFoundException {
+        return (Class<? extends T>) loadClass(name);
+    }
+
+    public ClassLoader getClassLoader() {
+        return this;
+    }
+}
+```
+
+
+To configure Quartz to use this class loader, modify your `quartz.properties` file
+to include the following lines:
+
+```
+org.quartz.scheduler.classLoadHelper.class=oceania.myservice.quartz.DynamicClassLoadHelper
+
+## To use the JobStoreTX with Postgresql include the following:
+## (Documentation for other database backends is below)
+org.quartz.dataSource.db.driver=org.postgresql.Driver
+org.quartz.dataSource.db.URL=<jdbc url string here>
+org.quartz.dataSource.db.user=<db user here>
+org.quartz.dataSource.db.password=<db password here>
+
+org.quartz.jobStore.class=org.quartz.impl.jdbcjobstore.JobStoreTX
+org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+org.quartz.jobStore.dataSource=db
+```
+
+For more configuration properties for the dataSource see [Quartz Data Source Config](http://quartz-scheduler.org/documentation/quartz-2.2.x/configuration/ConfigDataSources)
+
+For jobStore see [Quartz Job Store Config](http://quartz-scheduler.org/documentation/quartz-2.2.x/configuration/ConfigJobStoreTX)
+
+Checkout the jobStore configuration options if you want to utilize a database other than PostgreSQL.
+
+
+Finally, download the Quartz release from [Quartz](http://quartz-scheduler.org/downloads) and navigate to the "docs/dbTables" subdirectory to find the SQL table-creation scripts. Run the script appropriate for your SQL backend and you should be all set!
+
+
+### With MongoDB
+
+A solution to the different class loaders issue is to subclass the job store class and (if it allows this) make it use
 Clojure's `clojure.lang.DynamicClassLoader`:
 
 ``` java
