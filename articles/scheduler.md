@@ -201,7 +201,7 @@ We recommend that you read the following guides first, if possible, in this orde
 
  * [Defining jobs](/articles/jobs.html)
  * [Defining triggers and schedules](/articles/triggers.html)
- * [Using persistent stores for scheduler state](/articles/persistent_quartz_stores.html)
+ * [Using durable stores for scheduler state](/articles/durable_quartz_stores.html)
  * [Using Quartz plugins](/articles/quartz_plugins.html)
 
 
