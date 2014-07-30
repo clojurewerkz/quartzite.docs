@@ -18,7 +18,7 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.1.x` (including beta releases).
+This guide covers Quartzite `1.3.x` (including beta releases).
 
 
 ## Overview
