@@ -101,9 +101,8 @@ the `clojurewerkz.quartzite.jobs` namespace:
 
 (defn -main
   [& m]
-  (let [s (-> (qs/initialize) qs/start)]
-    )
-  (let [job (j/build
+  (let [s   (-> (qs/initialize) qs/start)
+        job (j/build
               (j/of-type NoOpJob)
               (j/with-identity (j/key "jobs.noop.1")))]))
 ```
@@ -192,12 +191,12 @@ Job data is optional and can be added via the job definition DSL:
 
 (defn -main
   [& m]
-  (qs/initialize)
-  (qs/start)
-  (let [job (j/build
+  (let [s   (-> (qs/initialize) qs/start)
+        job (j/build
              (j/of-type BillingJob)
              (j/using-job-data {"account-id" "356dbd7b08bbd5c449505e5378538b5d06e68eb1" "rollover?" true})
-             (j/with-identity (j/key "jobs.billing.356dbd7b08bbd5c449505e5378538b5d06e68eb1")))]))
+             (j/with-identity (j/key "jobs.billing.356dbd7b08bbd5c449505e5378538b5d06e68eb1")))]
+    ))
 ```
 
 
