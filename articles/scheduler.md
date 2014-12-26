@@ -18,18 +18,24 @@ This work is licensed under a <a rel="license" href="http://creativecommons.org/
 
 ## What version of Quartzite does this guide cover?
 
-This guide covers Quartzite `1.3.x` (including beta releases).
+This guide covers Quartzite `2.0.x` (including beta releases).
 
 
 ## Overview
 
-Quartz scheduler is a specialized database that stores jobs and triggers and executes the jobs according to trigger schedules. It may store its state
-in a durable data store (like relational databases accessible via JDBC or [MongoDB](https://github.com/michaelklishin/quartz-mongodb)).
+Quartz scheduler is a specialized database that stores jobs and
+triggers and executes the jobs according to trigger schedules. It may
+store its state in a durable data store (like relational databases
+accessible via JDBC or
+[MongoDB](https://github.com/michaelklishin/quartz-mongodb)).
 
-Quartz schedulers are also *event emitters*. It is possible to register listeners for various events (such as scheduler being paused or a trigger firing).
-Schedulers can be extended in using 3rd party plugins.
+Quartz schedulers are also *event emitters*. It is possible to
+register listeners for various events (such as scheduler being paused
+or a trigger firing).  Schedulers can be extended in using 3rd party
+plugins.
 
-Quartzite assumes that most application only ever use a single scheduler.
+Quartzite assumes that most application only ever use a single
+scheduler.
 
 
 ## Quartz scheduler lifecycle
@@ -43,7 +49,9 @@ Scheduler may be in one of the following states:
 
 These is not technically an exhaustive list but it gives you a good idea.
 
-Before jobs can be submitted for execution, the scheduler has to be initialized with the `clojurewerkz.quartzite.scheduler/initialize` function:
+Before jobs can be submitted for execution, the scheduler has to be
+initialized with the `clojurewerkz.quartzite.scheduler/initialize`
+function:
 
 ``` clojure
 (ns my.service
@@ -51,14 +59,20 @@ Before jobs can be submitted for execution, the scheduler has to be initialized 
 
 (defn -main
   [& m]
-  (qs/initialize))
+  (let [s (qs/initialize)]
+    ))
 ```
 
-This function starts a an instance of Quartz scheduler that maintains a thread pool of non-daemon threads. Using this function in
-the top-level namespace code is a **bad idea**: it will cause Leiningen tasks like `lein jar` to hang forever because Quartz threads will prevent
-JVM from exiting.
+This function starts a an instance of Quartz scheduler that maintains
+a thread pool of non-daemon threads. Using this function in the
+top-level namespace code is a **bad idea**: it will cause Leiningen
+tasks like `lein jar` to hang forever because Quartz threads will
+prevent JVM from exiting.
 
-When Quartzite scheduler is initialized, it does not trigger jobs until it is started using `clojurewerkz.quartzite.scheduler/start`. Very often this will happen on application start up:
+When Quartzite scheduler is initialized, it does not trigger jobs
+until it is started using
+`clojurewerkz.quartzite.scheduler/start`. Very often this will happen
+on application start up:
 
 ``` clojure
 (ns my.service
@@ -66,11 +80,11 @@ When Quartzite scheduler is initialized, it does not trigger jobs until it is st
 
 (defn -main
   [& m]
-  (qs/initialize)
-  (qs/start))
+  (let [s (-> (qs/initialize) qs/start)]
+    ))
 ```
 
-To put scheduler into the standby mode, use `clojurewerkz.quartzite.scheduler/standby` function:
+To put scheduler into standby mode, use `clojurewerkz.quartzite.scheduler/standby` function:
 
 ``` clojure
 (ns quartzite.docs.examples
@@ -78,10 +92,9 @@ To put scheduler into the standby mode, use `clojurewerkz.quartzite.scheduler/st
 
 (defn -main
   [& args]
-  (qs/initialize)
-  (qs/start)
-  (println "Putting the scheduler in the standby mode...")
-  (qs/standby))
+  (let [s (-> (qs/initialize) qs/start)]
+    (println "Putting the scheduler in the standby mode...")
+    (qs/standby s)))
 ```
 
 When in the standby mode, scheduler is not active: triggers do not fire and as a consequence, no jobs are executed.
@@ -94,14 +107,13 @@ To shut down the scheduler, use `clojurewerkz.quartzite.scheduler/shutdown`:
 
 (defn -main
   [& args]
-  (qs/initialize)
-  (qs/start)
-  (println "Shutting the scheduler down...")
-  (qs/shutdown))
+  (let [s (-> (qs/initialize) qs/start)]
+    (println "Shutting the scheduler down...")
+    (qs/shutdown s)))
 ```
 
 
-Quartzite provides several predicate functions that let you determine current state of the  scheduler:
+Quartzite provides several predicate functions that let you determine current state of the scheduler:
 
 ``` clojure
 (ns quartzite.docs.examples
@@ -109,42 +121,22 @@ Quartzite provides several predicate functions that let you determine current st
 
 (defn -main
   [& args]
-  (qs/initialize)
-  (qs/start)
-  (when (qs/started?)
-    (println "The scheduler is running."))
-  (qs/standby)
-  (when (qs/standby?)
-    (println "The scheduler is no longer running."))
-  (qs/shutdown)
-  (when (qs/shutdown?)
-    (println "The scheduler is shut down.")))
+  (let [s (-> (qs/initialize) qs/start)]
+    (when (qs/started? s)
+      (println "The scheduler is running."))
+    (qs/standby s)
+    (when (qs/standby?s )
+      (println "The scheduler is no longer running."))
+    (qs/shutdown s)
+    (when (qs/shutdown? s)
+      (println "The scheduler is shut down."))))
 ```
-
-
-To initialize a new scheduler after the previous one has been shut down, use `clojurewerkz.quartzite.scheduler/recreate`:
-
-``` clojure
-(ns quartzite.docs.examples
-  (:require [clojurewerkz.quartzite.scheduler :as qs]))
-
-(defn -main
-  [& args]
-  (qs/initialize)
-  (qs/start)
-  (println "Shutting the scheduler down...")
-  (qs/shutdown)
-  (println "Initializing a new scheduler...")
-  (qs/recreate))
-```
-
-Typically you only will recreate schedulers in the REPL or integration tests, it is almost never used in production.
 
 
 ## Quartz scheduler configuration
 
 Quartzite relies on Quartz to handle configuration. Quartz uses a property file, `quartz.properties`, that needs to be on the classpath.
-With [Leiningen 2](http://leiningen.org), you specify resource (non-code) file location using the `:resource-paths` key in `project.clj`:
+With [Leiningen](http://leiningen.org), you specify resource (non-code) file location using the `:resource-paths` key in `project.clj`:
 
 ``` clojure
 :resource-paths     ["src/resources"]
@@ -180,17 +172,6 @@ org.quartz.plugin.jobHistory.class = org.quartz.plugins.history.LoggingJobHistor
 ```
 
 Please refer to the [Quartz Scheduler configuration reference](http://quartz-scheduler.org/documentation/quartz-2.x/configuration/) to learn more.
-
-
-## Using multiple schedulers
-
-Quartzite was created with applications that only ever use a single
-scheduler (the vast majority, in our opinion). To work with multiple
-schedulers, you can rebind the dynamic var Quartzite uses to store its
-scheduler instance, `clojurewerkz.quartzite.scheduler/*scheduler*`,
-using `clojurewerkz.quartzite.scheduler/with-scheduler` convenience
-macro or `clojure.core/binding` directly. The var must be an atom.
-
 
 
 ## What to read next
