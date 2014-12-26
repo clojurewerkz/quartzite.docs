@@ -15,6 +15,11 @@ This guide covers:
 This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a> (including images & stylesheets). The source is available [on Github](https://github.com/clojurewerkz/quartzite.docs).
 
 
+## What version of Quartzite does this guide cover?
+
+This guide covers Quartzite `2.0.x` (including beta releases).
+
+
 ## Overview
 
 During Quartz operation, it has to do some housekeeping: track trigger execution history,
@@ -159,8 +164,3 @@ Quartz provides support for durable stores for its state. Using a durable store
 is a good idea for availability reasons. Due to specifics of how Clojure compiler
 and Quartz scheduler work, using durable stores with Quartzite requires a little
 bit of glue code. Quartzite authors continue looking for a good generic solution.
-
-
-## What version of Quartzite does this guide cover?
-
-This guide covers Quartzite `1.3.x` (including beta releases).
