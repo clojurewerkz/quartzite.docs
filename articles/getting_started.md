@@ -270,8 +270,8 @@ triggers do not execute associated jobs.
 ## Unscheduling jobs
 
 To unschedule an operation, you unschedule its trigger (or several of
-them) using `clojurewerkz.quartzite.scheduler/unschedule-job` and
-`clojurewerkz.quartzite.scheduler/unschedule-jobs` functions:
+them) using `clojurewerkz.quartzite.scheduler/delete-trigger` and
+`clojurewerkz.quartzite.scheduler/delete-triggers` functions:
 
 ``` clojure
 (ns my.service
@@ -301,11 +301,11 @@ them) using `clojurewerkz.quartzite.scheduler/unschedule-job` and
   ;; submit for execution
   (qs/schedule s job trigger)
   ;; and immediately unschedule the trigger
-  (qs/unschedule-job s tk)))
+  (qs/delete-trigger s tk)))
 ```
 
-Please note that `unschedule-job` takes a *trigger*
-key. `clojurewerkz.quartzite.scheduler/unschedule-jobs` works the same
+Please note that `delete-trigger` takes a *trigger*
+key. `clojurewerkz.quartzite.scheduler/delete-triggers` works the same
 way but takes a collection of keys.
 
 There are other functions that delete jbos and all their triggers,
