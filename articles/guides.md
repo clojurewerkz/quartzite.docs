@@ -59,13 +59,6 @@ This guide covers:
  * How to use durable job stores with Quartzite
 
 
-### [Using Quartz plugins](/articles/quartz_plugins.html)
-
-This guide covers:
-
- * TBD
-
-
 
 ## Tell Us What You Think!
 

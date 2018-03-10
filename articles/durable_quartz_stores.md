@@ -114,6 +114,8 @@ Finally, download the Quartz release from [Quartz](http://quartz-scheduler.org/d
 
 ### With MongoDB
 
+It is possible to use [MongoDB as a durable job store for Quartz](https://github.com/michaelklishin/quartz-mongodb/).
+
 A solution to the different class loaders issue is to subclass the job store class and (if it allows this) make it use
 Clojure's `clojure.lang.DynamicClassLoader`:
 
