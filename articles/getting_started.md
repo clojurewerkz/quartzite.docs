@@ -42,21 +42,21 @@ are introduced only if they are really necessary.
 
 ## Supported Clojure versions
 
-Quartzite requires Clojure 1.6.
+Quartzite requires Clojure 1.7.
 
 
 ## Adding Quartzite Dependency To Your Project
 
 ### With Leiningen
 
-    [clojurewerkz/quartzite "2.0.0"]
+    [clojurewerkz/quartzite "2.1.0"]
 
 ### With Maven
 
     <dependency>
       <groupId>clojurewerkz</groupId>
       <artifactId>quartzite</artifactId>
-      <version>2.0.0</version>
+      <version>2.1.0</version>
     </dependency>
 
 It is recommended to stay up-to-date with new versions. New releases and important changes are announced [@ClojureWerkz](http://twitter.com/ClojureWerkz).
