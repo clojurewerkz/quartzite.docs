@@ -61,26 +61,25 @@ To allow Quartz to see classes the Clojure compiler generates, we must provide a
 custom implementation of the ClassLoadHelper class which Quartz uses for
 discovering classes. A working implementation is below:
 
-``` java
-// Example package
-package oceania.myservice.quartz;
+```clj
+;; example namespace
+(ns oceania.myservice.quartz.DynamicClassLoadHelper
+  (:gen-class
+   :extends clojure.lang.DynamicClassLoader
+   :exposes-methods {loadClass superLoadClass}
+   :implements [org.quartz.spi.ClassLoadHelper]))
 
-import clojure.lang.DynamicClassLoader;
-import org.quartz.spi.ClassLoadHelper;
+(defn -initialize [_])
 
-public class DynamicClassLoadHelper extends DynamicClassLoader implements ClassLoadHelper {
-    public void initialize() {}
+(defn -loadClass
+  ([^oceania.myservice.quartz.DynamicClassLoadHelper this, ^String class-name]
+   (.superLoadClass this class-name true)) ; loadClass(String name, boolean resolve)
+  ([^oceania.myservice.quartz.DynamicClassLoadHelper this, ^String class-name, _]
+   (.superLoadClass this class-name true)))
 
-    @SuppressWarnings("unchecked")
-    public <T> Class<? extends T> loadClass(String name, Class<T> clazz)
-        throws ClassNotFoundException {
-        return (Class<? extends T>) loadClass(name);
-    }
+(defn -getClassLoader [this]
+  this)
 
-    public ClassLoader getClassLoader() {
-        return this;
-    }
-}
 ```
 
 
